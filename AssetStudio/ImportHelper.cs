@@ -1312,7 +1312,7 @@ namespace AssetStudio
 
             var key = remains[1];
             
-            for (int i = 0; i < 68; i++)
+            for (int i = 0; i < 73; i++)
             {
                 remains[i] ^= key;
             }
