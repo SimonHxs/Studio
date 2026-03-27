@@ -1,4 +1,4 @@
-﻿
+
 using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL;
 using System;
@@ -1450,9 +1450,48 @@ namespace AssetStudio.GUI
 
         private void PreviewTexture(DirectBitmap bitmap)
         {
+            // imgPreviewBox.Visible = true;
+            // imgPreviewBox.Size = new Size(768, 605);
+            // imgPreviewBox.Location = new Point(0, 0);
+            // imageTexture?.Dispose();
+            // imageTexture = bitmap;
+            // imgPreviewBox.Image = imageTexture.Bitmap;
+            // imgPreviewBox.SizeMode = PictureBoxSizeMode.Zoom;
             imgPreviewBox.Visible = true;
-            imgPreviewBox.Size = new Size(768, 605);
-            imgPreviewBox.Location = new Point(0, 0);
+
+            // 原始尺寸
+            int bmpWidth = bitmap.Bitmap.Width;
+            int bmpHeight = bitmap.Bitmap.Height;
+
+            // 面板尺寸
+            int panelWidth = previewPanel.ClientSize.Width;
+            int panelHeight = previewPanel.ClientSize.Height;
+
+            // 计算缩放比例
+            float scale = Math.Min(
+                (float)panelWidth / bmpWidth,
+                (float)panelHeight / bmpHeight
+            );
+
+            // 如果图片比面板大，按比例缩小，否则保持原始大小
+            int finalWidth = bmpWidth;
+            int finalHeight = bmpHeight;
+            if (scale < 1.0f)
+            {
+                finalWidth = (int)(bmpWidth * scale);
+                finalHeight = (int)(bmpHeight * scale);
+            }
+
+            // 设置 PictureBox 尺寸
+            imgPreviewBox.Size = new Size(finalWidth, finalHeight);
+
+            // 居中定位
+            imgPreviewBox.Location = new Point(
+                (panelWidth - finalWidth) / 2,
+                (panelHeight - finalHeight) / 2
+            );
+
+            // 更新图片
             imageTexture?.Dispose();
             imageTexture = bitmap;
             imgPreviewBox.Image = imageTexture.Bitmap;
@@ -1475,21 +1514,76 @@ namespace AssetStudio.GUI
                 imgPreviewBox.Top = e.Y + imgPreviewBox.Top - MouseDownLocation.Y;
             }
         }
-
         private void imgPreviewBox_MouseWheel(object sender, MouseEventArgs e)
         {
-            if (e.Delta > 0)
+            // if (e.Delta > 0)
+            // {
+            //     // Zoom in
+            //     imgPreviewBox.Width = (int)(imgPreviewBox.Width * 1.25);
+            //     imgPreviewBox.Height = (int)(imgPreviewBox.Height * 1.25);
+            // }
+            // else
+            // {
+            //     // Zoom out
+            //     imgPreviewBox.Width = (int)(imgPreviewBox.Width / 1.25);
+            //     imgPreviewBox.Height = (int)(imgPreviewBox.Height / 1.25);
+            // }
+            // 当前鼠标在 PictureBox 内的坐标（相对位置）
+            var bounds = imgPreviewBox.Bounds;
+            float relX = (float)e.X / bounds.Width;
+            float relY = (float)e.Y / bounds.Height;
+            // 缩放因子
+            float scale = e.Delta > 0 ? 1.25f : 0.8f;
+            // 新尺寸
+            int newWidth = (int)(bounds.Width * scale);
+            int newHeight = (int)(bounds.Height * scale);
+            // 缩放后鼠标位置对应的图片点
+            int newMouseX = (int)(newWidth * relX);
+            int newMouseY = (int)(newHeight * relY);
+            
+            int newLeft = (e.X + bounds.Left) - newMouseX;
+            int newTop = (e.Y + bounds.Top) - newMouseY;
+            // 应用变化
+            imgPreviewBox.SetBounds(newLeft, newTop, newWidth, newHeight);
+        }
+        
+        private void imgPreviewBox_DoubleClick(object sender, EventArgs eventArgs)
+        {
+            // 原始尺寸
+            int bmpWidth = imageTexture.Bitmap.Width;
+            int bmpHeight = imageTexture.Bitmap.Height;
+
+            // 面板尺寸
+            int panelWidth = previewPanel.ClientSize.Width;
+            int panelHeight = previewPanel.ClientSize.Height;
+
+            // 计算缩放比例
+            float scale = Math.Min(
+                (float)panelWidth / bmpWidth,
+                (float)panelHeight / bmpHeight
+            );
+
+            // 如果图片比面板大，按比例缩小，否则保持原始大小
+            int finalWidth = bmpWidth;
+            int finalHeight = bmpHeight;
+            if (scale < 1.0f)
             {
-                // Zoom in
-                imgPreviewBox.Width = (int)(imgPreviewBox.Width * 1.25);
-                imgPreviewBox.Height = (int)(imgPreviewBox.Height * 1.25);
+                finalWidth = (int)(bmpWidth * scale);
+                finalHeight = (int)(bmpHeight * scale);
             }
-            else
-            {
-                // Zoom out
-                imgPreviewBox.Width = (int)(imgPreviewBox.Width / 1.25);
-                imgPreviewBox.Height = (int)(imgPreviewBox.Height / 1.25);
-            }
+
+            // 设置 PictureBox 尺寸
+            imgPreviewBox.Size = new Size(finalWidth, finalHeight);
+
+            // 居中定位
+            imgPreviewBox.Location = new Point(
+                (panelWidth - finalWidth) / 2,
+                (panelHeight - finalHeight) / 2
+            );
+
+            // 更新图片
+            imgPreviewBox.Image = imageTexture.Bitmap;
+            imgPreviewBox.SizeMode = PictureBoxSizeMode.Zoom;
         }
         
         private void imgPreviewBox_MouseUp(object sender, MouseEventArgs e)
