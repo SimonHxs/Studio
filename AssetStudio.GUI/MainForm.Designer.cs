@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace AssetStudio.GUI
 {
@@ -1293,6 +1293,7 @@ namespace AssetStudio.GUI
             imgPreviewBox.MouseMove += imgPreviewBox_MouseMove;
             imgPreviewBox.MouseUp += imgPreviewBox_MouseUp;
             imgPreviewBox.MouseWheel += imgPreviewBox_MouseWheel;
+            imgPreviewBox.DoubleClick += imgPreviewBox_DoubleClick;
             // 
             // classTextBox
             // 
